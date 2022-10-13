@@ -20,6 +20,7 @@ const row = (bill) => {
   }
 
 const rows = (data) => {
+  sortTime(data)
   return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
 }
 
@@ -77,4 +78,11 @@ export default ({ data: bills, loading, error }) => {
       ${modal()}
     </div>`
   )
+}
+
+
+function sortTime(tab){
+  tab.sort(function(a, b){
+    return new Date(b.date) - new Date(a.date);
+  });
 }
