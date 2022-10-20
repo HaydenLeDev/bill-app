@@ -36,12 +36,13 @@ export default class NewBill {
           }
         })
         .then(({ fileUrl, key }) => {
-          console.log(fileUrl);
           this.billId = key
           this.fileUrl = fileUrl
           this.fileName = fileName
         }).catch(error => console.error(error))
-    } 
+    } else {
+      this.document.querySelector(`input[data-testid="file"]`).value = "";
+    }
   }
 
   handleSubmit = e => {
@@ -61,6 +62,7 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
+    console.log(bill.fileUrl);
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
