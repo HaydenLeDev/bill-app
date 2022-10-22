@@ -25,8 +25,8 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
-      //to-do write expect expression
-      //expect(windowIcon).toHaveStyle(`background: #7bb1f7`)
+      //to-do write expect expression 
+      expect(windowIcon.className).toBe('active-icon'); 
 
     })
     test("Then bills should be ordered from earliest to latest", () => {
@@ -35,6 +35,24 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => ((a < b) ? 1 : -1)
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted) 
+    })
+  })
+})
+
+describe("Given I am a user connected as Employee", () => {
+  describe("When I navigate to Bill", () => {
+    test("fetches bills from mock API GET", async () => {
+      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.append(root)
+      router()
+      window.onNavigate(ROUTES_PATH.Bills)
+      await waitFor(() => screen.getByText("Mes notes de frais"))
+      const contentPending  = await screen.getByText("Hôtel et logement")
+      console.log(contentPending);
+      expect(contentPending).toBeTruthy()
+      
     })
   })
 })
