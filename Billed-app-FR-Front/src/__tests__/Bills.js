@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { screen, waitFor } from "@testing-library/dom"
+import { isInaccessible, screen, waitFor } from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
@@ -68,17 +68,35 @@ describe("Given I am connected as an employee", () => {
       expect(screen.getByTestId(`expense-type`)).toBeTruthy()
     })
     test("When you click on the icon to open the receipt", async () => {
-      document.body.innerHTML = BillsUI({ data: bills })
-      //const iconEye = screen.getByTestId('icon-eye1')
-      console.log(document.body.childNodes)
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
 
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Admin'
+      }))
+
+      const bill = new Bills({
+        document, onNavigate, store : null, bills:bills, localStorage: window.localStorage
+      })
+      document.body.innerHTML = BillsUI({ data: bills })
+      const icones = document.querySelectorAll(`div[id="eye"]`)
+      console.log(icones[1])
+      const icone = icones[1]
+      $.fn.modal = jest.fn();
+      const handleClickModal = jest.fn(() => bill.handleClickIconEye(icone))
+      icone.addEventListener('click', handleClickModal)
+      userEvent.click(icone)
+      expect(handleClickModal).toHaveBeenCalled()
+      
     })
   })
 })
 
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to Bill", () => {
-    test("fetches bills from mock API GET", async () => {
+    test("Then fetches bills from mock API GET", async () => {
       localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
       const root = document.createElement("div")
       root.setAttribute("id", "root")
@@ -88,8 +106,6 @@ describe("Given I am a user connected as Employee", () => {
       waitFor(() => screen.getByLabelText("Mes notes de frais"))
       const contentPending = await screen.getByText("Hôtel et logement")
       expect(contentPending).toBeTruthy()
-      
-
     })
     describe("When an error occurs on API", () => {
       beforeEach(() => {
@@ -108,7 +124,7 @@ describe("Given I am a user connected as Employee", () => {
         document.body.appendChild(root)
         router()
       })
-      test("fetches bills from an API and fails with 404 message error", async () => {
+      test("Then fetches bills from an API and fails with 404 message error", async () => {
         mockStore.bills.mockImplementationOnce(() => {
           return {
             list: () => {
@@ -121,7 +137,7 @@ describe("Given I am a user connected as Employee", () => {
         const message = await screen.getByText(/Erreur 404/)
         expect(message).toBeTruthy()
       })
-      test("fetches messages from an API and fails with 500 message error", async () => {
+      test("Then fetches messages from an API and fails with 500 message error", async () => {
 
         mockStore.bills.mockImplementationOnce(() => {
           return {
