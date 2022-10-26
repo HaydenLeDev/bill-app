@@ -19,8 +19,7 @@ export default class NewBill {
   handleChangeFile = e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    console.log(file)
-    if (gestionExtension(file.name)){
+    if (this.gestionExtension(file.name)){
       const filePath = e.target.value.split(/\\/g)
       const fileName = filePath[filePath.length - 1]
       const formData = new FormData()
@@ -79,17 +78,15 @@ export default class NewBill {
         .catch(error => console.error(error))
     }
   }
-}
 
-function gestionExtension(nom) {
-  let regex = /[^.]*$/i
-  let extension = nom.match(regex)
-  console.log(extension)
-
-  if (extension == "png" || extension == "jpg" || extension == "jpeg") {
-    console.log("true")
-    return true
+  gestionExtension(nom) {
+    let regex = /[^.]*$/i
+    let extension = nom.match(regex)
+  
+    if (extension == "png" || extension == "jpg" || extension == "jpeg") {
+      return true
+    }
+    return false
   }
-  console.log("false")
-  return false
 }
+
