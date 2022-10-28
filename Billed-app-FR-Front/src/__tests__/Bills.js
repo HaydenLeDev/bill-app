@@ -51,7 +51,7 @@ describe("Given I am connected as an employee", () => {
       }
       
       const bill = new Bills({
-        document, onNavigate, store : null, bills:bills, localStorage: window.localStorage
+        document, onNavigate, store : null, localStorage: window.localStorage
       })
       
       const root = document.createElement("div")
@@ -77,13 +77,13 @@ describe("Given I am connected as an employee", () => {
       }))
 
       const bill = new Bills({
-        document, onNavigate, store : null, bills:bills, localStorage: window.localStorage
+        document, onNavigate, store : null, localStorage: window.localStorage
       })
       document.body.innerHTML = BillsUI({ data: bills })
       const icones = document.querySelectorAll(`div[id="eye"]`)
       console.log(icones[1])
       const icone = icones[1]
-      $.fn.modal = jest.fn();
+      $.fn.modal = jest.fn()
       const handleClickModal = jest.fn(() => bill.handleClickIconEye(icone))
       icone.addEventListener('click', handleClickModal)
       userEvent.click(icone)
@@ -96,7 +96,7 @@ describe("Given I am connected as an employee", () => {
 describe("Given I am a user connected as Employee", () => {
   describe("When I navigate to Bill", () => {
     test("Then fetches bills from mock API GET", async () => {
-      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }));
+      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "a@a" }))
       const root = document.createElement("div")
       root.setAttribute("id", "root")
       document.body.append(root)
