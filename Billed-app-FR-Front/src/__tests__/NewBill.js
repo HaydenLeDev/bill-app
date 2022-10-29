@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { getByTestId, screen } from "@testing-library/dom"
+import { fireEvent , screen } from "@testing-library/dom"
 import userEvent from '@testing-library/user-event'
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import NewBillUI from "../views/NewBillUI.js"
@@ -86,27 +86,29 @@ describe("Given I am connected as an employee", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
-      
+      const store = jest.fn();
       const newBill = new NewBill({
-        document, onNavigate, store : null, localStorage: window.localStorage
+        document, onNavigate, store : store, localStorage: window.localStorage
       })
-      const typeChoiceInput = screen.getByTestId("expense-type")
-      const nameInput = screen.getByTestId("expense-name")
-      const dateInput = screen.getByTestId("datepicker")
-      const montantInput = screen.getByTestId("amount")
-      const vatInput = screen.getByTestId("vat")
-      const pctInput = screen.getByTestId("pct")
-      const commentaryInput = screen.getByTestId("commentary")
+
       const fileInput = screen.getByTestId("file")
-      const bouton =  screen.getByText("Envoyer")
-      
+
       const testImageFile = new File(["1592770761.jpeg"], "1592770761.jpeg", { type: "image/jpeg" })
       const changeFile = jest.fn(() => newBill.handleChangeFile)
       fileInput.addEventListener('click', changeFile)
-      userEvent.click(fileInput)
-      //expect(fileInput.files.length).toBe(0)
-      //userEvent.upload(changeFile,testImageFile)
-      //expect(changeFile).toHaveBeenCalled()
+      fireEvent.click(fileInput)
+      userEvent.upload(fileInput, testImageFile)
+      expect(changeFile).toHaveBeenCalled()
+      
+    })
+
+    test("Then I add a file to the form ", async() => {
+      const testImageFile = new File(["1592770761.jpeg"], "1592770761.jpeg", { type: "image/jpeg" })
+      const fileInput = screen.getByTestId("file")
+      expect(fileInput.files.length).toBe(0)
+      userEvent.upload(fileInput, testImageFile)
+      expect(fileInput.files[0].name).toBe("1592770761.jpeg");
+
     })
   })
 })
