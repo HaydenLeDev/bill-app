@@ -9,8 +9,8 @@ import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
 import { bills } from "../fixtures/bills"
-
-import mockStore from "../__mocks__/store"
+import mockedBills from "../__mocks__/store.js";
+import mockStore from "../__mocks__/store";
 
 jest.mock("../app/store", () => mockStore)
 
@@ -86,29 +86,64 @@ describe("Given I am connected as an employee", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
-      const store = jest.fn();
       const newBill = new NewBill({
-        document, onNavigate, store : store, localStorage: window.localStorage
+        document, onNavigate, store : mockedBills, localStorage: window.localStorage
       })
 
       const fileInput = screen.getByTestId("file")
-
-      const testImageFile = new File(["1592770761.jpeg"], "1592770761.jpeg", { type: "image/jpeg" })
+      const file = [new File(["test"], "test.jpg", { type: "image/jpg" })]
       const changeFile = jest.fn(() => newBill.handleChangeFile)
-      fileInput.addEventListener('click', changeFile)
-      fireEvent.click(fileInput)
-      userEvent.upload(fileInput, testImageFile)
-      expect(changeFile).toHaveBeenCalled()
-      
+      fileInput.addEventListener("change", changeFile)
+      fireEvent.change(fileInput, {
+        target: {
+          files: file
+        }
+      })
+      expect(changeFile).toBeCalled()
+      expect(fileInput.files[0].name).toBe("test.jpg")
     })
+  })
 
-    test("Then I add a file to the form ", async() => {
-      const testImageFile = new File(["1592770761.jpeg"], "1592770761.jpeg", { type: "image/jpeg" })
-      const fileInput = screen.getByTestId("file")
-      expect(fileInput.files.length).toBe(0)
-      userEvent.upload(fileInput, testImageFile)
-      expect(fileInput.files[0].name).toBe("1592770761.jpeg");
+  // Integration test POST
+  describe ("I submit a valid bill form", () => {
+    test("then a new bill", async() => {
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+      window.localStorage.setItem('user', JSON.stringify({
+        type: 'Employee'
+      }))
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const newBill = new NewBill({
+        document, onNavigate, store: mockedBills, localStorage:window.localStorage
+      })
+      const newValidBill = {
+        name: "Bill test",
+        date: "2022-11-12",
+        type: "Hôtel et logement",
+        amount: 200,
+        pct: 20,
+        vat: "40",
+        commentary: "Test new bill",
+        fileName: "test.jpg",
+        fileUrl: "https://test.storage.tld/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a"
+      }
 
+      const buttonSubmit = screen.getByTestId("form-new-bill")
+      const handleSubmit = jest.fn((e) => newBill.handleSubmit(e))
+      document.querySelector(`input[data-testid="expense-name"]`).value = newValidBill.name
+      document.querySelector(`input[data-testid="datepicker"]`).value = newValidBill.date
+      document.querySelector(`select[data-testid="expense-type"]`).value = newValidBill.type
+      document.querySelector(`input[data-testid="amount"]`).value = newValidBill.amount
+      document.querySelector(`input[data-testid="vat"]`).value = newValidBill.vat
+      document.querySelector(`input[data-testid="pct"]`).value = newValidBill.pct
+      document.querySelector(`textarea[data-testid="commentary"]`).value = newValidBill.commentary
+      newBill.fileUrl = newValidBill.fileUrl
+      newBill.fileName = newValidBill.fileName
+      buttonSubmit.addEventListener('click', handleSubmit)
+      fireEvent.click(buttonSubmit)
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(screen.getAllByText("Mes notes de frais")).toBeTruthy();
     })
   })
 })
