@@ -7,8 +7,7 @@ import userEvent from '@testing-library/user-event'
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
-import { ROUTES, ROUTES_PATH } from "../constants/routes.js";
-import { bills } from "../fixtures/bills"
+import { ROUTES } from "../constants/routes.js";
 import mockedBills from "../__mocks__/store.js";
 import mockStore from "../__mocks__/store";
 
@@ -25,31 +24,6 @@ afterEach(() =>{
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
-    test("Then I send the form", async () => {
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
-
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee'
-      }))
-
-      const newBill = new NewBill({
-        document, onNavigate, store : null, localStorage: window.localStorage
-      })
-
-      const typeChoiceInput = screen.getByTestId("expense-type")
-      const bouton =  screen.getByText("Envoyer")
-
-      expect(typeChoiceInput.value).toBe('Transports');
-      const handleSubmit = jest.fn(() => newBill.handleSubmit)
-      bouton.addEventListener('click', handleSubmit)
-      
-      userEvent.click(bouton)
-      expect(handleSubmit).toHaveBeenCalled()
-      expect(screen.getByTestId("btn-new-bill")).toBeTruthy()
-    })
     test("Then the filename with the correct extension", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
