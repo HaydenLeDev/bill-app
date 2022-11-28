@@ -3,7 +3,6 @@
  */
 
 import { fireEvent , screen } from "@testing-library/dom"
-import userEvent from '@testing-library/user-event'
 import { localStorageMock } from "../__mocks__/localStorage.js"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
